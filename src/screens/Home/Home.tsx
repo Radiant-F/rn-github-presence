@@ -1,6 +1,6 @@
-import {Button, StyleSheet, Text, View} from 'react-native';
+import {Button, Text, View} from 'react-native';
 import React from 'react';
-import {HomeProps} from '../../routes';
+import {HomeProps} from '../../routes/navigationConfig';
 
 export default function Home({navigation}: HomeProps): React.JSX.Element {
   return (
