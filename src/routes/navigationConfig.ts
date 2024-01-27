@@ -10,10 +10,12 @@ export type RootStackParamList = {
     token: string;
   };
   SignUp: undefined;
+  Splash: undefined;
 };
 
 export type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export type SignInProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
+export type SplashProps = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
 const RootStackNavigator = createNativeStackNavigator<RootStackParamList>();
 
