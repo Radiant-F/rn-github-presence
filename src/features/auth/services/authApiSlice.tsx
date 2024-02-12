@@ -10,5 +10,18 @@ const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
+    user: builder.query({
+      query: () => '/profile',
+      async onQueryStarted(args, {queryFulfilled}) {
+        try {
+          const {data} = await queryFulfilled;
+          console.log('SUCCESS:', data);
+        } catch (error) {
+          // console.log('ERROR:', error);
+        }
+      },
+    }),
   }),
 });
+
+export const {useUserQuery, useSignInMutation} = authApiSlice;
