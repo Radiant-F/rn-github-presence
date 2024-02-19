@@ -7,7 +7,8 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  token: '',
+  token:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTMzNzQ0NzRlZDU5NTQ5ZTA3MjU2YmQiLCJ1c2VybmFtZSI6IlRlc3RlciIsImVtYWlsIjoidGVzdGluZ0BnbWFpbC5jb20iLCJpYXQiOjE3MDMwNTQ4NDYsImV4cCI6MTcwMzY1OTY0Nn0.St0nXb-zGFVIA8Oq68Msb-hRYfIMNAKWfNxwqoU5JmQ',
   user: {},
   credentials: {},
 };
