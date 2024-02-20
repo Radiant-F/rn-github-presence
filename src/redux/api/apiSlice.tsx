@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit/query';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: '',
+  baseUrl: 'https://todo-api-omega.vercel.app/api/v1',
   credentials: 'include',
   prepareHeaders: (headers, {getState}) => {
     const token = (getState() as RootState).auth.token;
@@ -24,8 +24,8 @@ const baseQueryReauth: BaseQueryFn<
 > = async (args, api, extra) => {
   let result = await baseQuery(args, api, extra);
 
-  if (result.error && result.data) {
-    // && token error ? update
+  if (result.error && result.error.data.message == 'jwt expired') {
+    console.log('refresh token');
   }
 
   return result;
