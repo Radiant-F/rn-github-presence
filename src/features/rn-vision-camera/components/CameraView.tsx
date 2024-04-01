@@ -6,6 +6,7 @@ import {
   View,
   Image,
   Modal,
+  Dimensions,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import {useIsFocused} from '@react-navigation/native';
@@ -16,9 +17,11 @@ import {
 } from 'react-native-vision-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ButtonOption from './ButtonOption';
-import ButtonShot from './ButtonShot';
+import ButtonCapture from './ButtonCapture';
 import Video from 'react-native-video';
 import {AlertPopUp} from '../../../components';
+
+const {height, width} = Dimensions.get('window');
 
 export default function CameraView(): React.JSX.Element {
   const [modal, setModal] = useState(false);
@@ -28,6 +31,8 @@ export default function CameraView(): React.JSX.Element {
   const device = useCameraDevice(cameraPosition);
 
   const camera = useRef<Camera>(null);
+
+  const [loading, setLoading] = useState(false);
 
   const [mode, setMode] = useState<'photo' | 'video'>('photo');
 
@@ -49,13 +54,17 @@ export default function CameraView(): React.JSX.Element {
           flash: flash,
           qualityPrioritization: 'speed',
           enableAutoStabilization: stablilzation,
+          enableShutterSound: false,
+          enablePrecapture: true,
         });
         console.log(photo);
         setPhotoUri(`file://${photo.path}`);
         setModal(true);
+        setLoading(false);
       }
     } catch (error) {
       console.log('ERROR:', error);
+      setLoading(false);
     }
   }
 
@@ -71,15 +80,18 @@ export default function CameraView(): React.JSX.Element {
           console.log('RECORDED:', video);
           setVideoUri(`file://${video.path}`);
           setModal(true);
+          setLoading(false);
         },
         onRecordingError(error) {
           console.log('RECORDING ERROR:', error);
+          setLoading(false);
         },
       });
     }
   }
 
   async function handleCapture() {
+    setLoading(true);
     if (mode == 'photo') takePhoto();
     else {
       if (recording) {
@@ -106,10 +118,12 @@ export default function CameraView(): React.JSX.Element {
           audio={true}
           ref={camera}
           device={device}
-          style={StyleSheet.absoluteFill}
+          style={{width, height, position: 'absolute'}}
+          // style={StyleSheet.absoluteFill}
           isActive={isActive && !modal}
+          orientation="portrait"
         />
-        <ButtonShot onPress={handleCapture} />
+        <ButtonCapture onPress={handleCapture} loading={loading} />
         <Button
           title="stop video"
           disabled={!recording}
@@ -139,19 +153,21 @@ export default function CameraView(): React.JSX.Element {
           animationType="fade"
           visible={modal}
           onRequestClose={clearOnModalClose}>
-          {photoUri && (
-            <Image
-              source={{uri: photoUri}}
-              style={{width: '100%', height: '100%'}}
-            />
-          )}
-          {videoUri && (
-            <Video
-              source={{uri: videoUri}}
-              style={{flex: 1, width: '100%', height: '100%'}}
-              repeat
-            />
-          )}
+          <View style={{flex: 1}}>
+            {photoUri && (
+              <Image
+                source={{uri: photoUri}}
+                style={{width: '100%', height: '100%'}}
+              />
+            )}
+            {videoUri && (
+              <Video
+                source={{uri: videoUri}}
+                style={{flex: 1, width: '100%', height: '100%'}}
+                repeat
+              />
+            )}
+          </View>
         </Modal>
       </View>
     );
