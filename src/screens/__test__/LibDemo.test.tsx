@@ -1,82 +1,130 @@
-import {Button, StyleSheet, Text, View, Modal, Linking} from 'react-native';
-import React, {useState} from 'react';
 import {
-  Camera,
-  useCameraDevice,
-  useCameraPermission,
-  useCodeScanner,
-} from 'react-native-vision-camera';
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function LibDemo() {
-  const {hasPermission} = useCameraPermission();
-  const device = useCameraDevice('back');
+const months = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
 
-  const [active, setActive] = useState(true);
+const LibDemo = () => {
+  const [presenceData, setPresenceData] = useState<any>({});
 
-  const body = {
-    status: 'Hadir',
-    latitude: 0,
-    longitude: 0,
-    desc: '',
-  };
-  const header = {
-    headers: {Authorization: `Bearer ${token}`, Accept: 'application/json'},
-  };
-  const token =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LnBvbmRva2RpZ2l0YWwucG9uZG9rcXUuaWRcL2FwaVwvbG9naW4iLCJpYXQiOjE3MTA4MzEzNDEsImV4cCI6MTcxMzQyMzM0MSwibmJmIjoxNzEwODMxMzQxLCJqdGkiOiIwVGtVMmpUT0F5ZWpnNnB0Iiwic3ViIjo2NDIsInBydiI6Ijg3ZTBhZjFlZjlmZDE1ODEyZmRlYzk3MTUzYTE0ZTBiMDQ3NTQ2YWEifQ.yTn01x_zumeQKEest1Su44vfke9AxvUSilIIJjMDdBE';
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(
+    new Date().getMonth(),
+  );
 
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: async codes => {
-      setActive(false);
-      console.log(codes[0].value);
-      try {
-        const endpoint = codes[0].value == 'Hadir' ? 'in' : 'out';
-        const {data} = await axios.post(
-          `https://dev.pondokdigital.pondokqu.id/api/presence-${endpoint}`,
-          body,
-          header,
-        );
-        console.log('SUCCESS:', data);
-      } catch (error) {
-        console.log('ERROR:', error);
-      }
-    },
-  });
+  async function getPresence() {
+    try {
+      const {data} = await axios.get(
+        'https://dev.pondokdigital.pondokqu.id/api/get-data-user-in-year',
+        {
+          headers: {
+            Authorization:
+              'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LnBvbmRva2RpZ2l0YWwucG9uZG9rcXUuaWRcL2FwaVwvbG9naW4iLCJpYXQiOjE3MTA4MzEzNDEsImV4cCI6MTcxMzQyMzM0MSwibmJmIjoxNzEwODMxMzQxLCJqdGkiOiIwVGtVMmpUT0F5ZWpnNnB0Iiwic3ViIjo2NDIsInBydiI6Ijg3ZTBhZjFlZjlmZDE1ODEyZmRlYzk3MTUzYTE0ZTBiMDQ3NTQ2YWEifQ.yTn01x_zumeQKEest1Su44vfke9AxvUSilIIJjMDdBE',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      setPresenceData(data);
+    } catch (error) {
+      console.log('ERROR:', error);
+    }
+  }
 
-  if (device == null) return <Text>Tidak ada kamera</Text>;
+  useEffect(() => {
+    getPresence();
+  }, []);
 
   return (
-    <View style={{flex: 1}}>
-      {hasPermission && (
-        <Camera
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={active}
-          codeScanner={codeScanner}
-        />
-      )}
-      <Button title="activate camera" onPress={() => setActive(true)} />
-      <Modal visible={!hasPermission}>
-        <View
-          style={{
-            backgroundColor: 'black',
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <View style={{backgroundColor: 'white', padding: 20}}>
-            <Text>Izinkan kamera</Text>
-            <Button
-              title="izinkan kamera"
-              onPress={() => Linking.openSettings()}
-            />
-          </View>
-        </View>
-      </Modal>
+    <View style={{flex: 1, marginTop: 20}}>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.btnNavMonth}
+          onPress={() => setSelectedMonthIndex(selectedMonthIndex - 1)}>
+          <Icon name="chevron-left" color={'black'} size={30} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.textMonth}>
+          <Text style={{color: 'black', fontSize: 20}}>
+            {months[selectedMonthIndex]}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnNavMonth}
+          onPress={() => setSelectedMonthIndex(selectedMonthIndex + 1)}>
+          <Icon name="chevron-right" color={'black'} size={30} />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        numColumns={4}
+        columnWrapperStyle={{alignSelf: 'center'}}
+        data={presenceData[months[selectedMonthIndex]]}
+        renderItem={({item}) => {
+          return (
+            <View
+              style={{
+                ...styles.viewTanggal,
+                backgroundColor:
+                  item.statusPresence == 'Alpha' ? 'black' : 'dodgerblue',
+              }}>
+              <Text style={{color: 'white'}}>{item.statusPresence}</Text>
+            </View>
+          );
+        }}
+      />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({});
+export default LibDemo;
+
+const styles = StyleSheet.create({
+  viewTanggal: {
+    width: 60,
+    height: 60,
+    backgroundColor: 'black',
+    margin: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  textMonth: {
+    backgroundColor: 'white',
+    padding: 20,
+    paddingHorizontal: 40,
+    elevation: 5,
+    borderRadius: 50 / 2,
+  },
+  btnNavMonth: {
+    width: 50,
+    height: 50,
+    backgroundColor: 'white',
+    borderRadius: 50 / 2,
+    elevation: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
