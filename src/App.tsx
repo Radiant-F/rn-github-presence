@@ -4,6 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import store from './redux/store';
 import {Provider} from 'react-redux';
 import StackNavigator from './routes';
+import './i18n/i18n';
 
 export default function App(): React.JSX.Element {
   return (
