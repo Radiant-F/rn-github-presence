@@ -6,10 +6,6 @@ export default function usePermission(permissions = []) {
 
   async function checkPermissions() {
     try {
-      const permissions = [
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ];
       const results = await PermissionsAndroid.requestMultiple(permissions);
       const granted = Object.values(results).every(
           result => result === 'granted',
@@ -25,26 +21,26 @@ export default function usePermission(permissions = []) {
           : denied
           ? 'denied'
           : never_ask_again
-          ? 'open settings'
-          : 'ignored',
+          ? 'ignored'
+          : 'half granted',
       );
-      console.log(
-        granted
-          ? 'granted'
-          : denied
-          ? 'denied'
-          : never_ask_again
-          ? 'open settings'
-          : 'ignored',
-      );
+      // console.log(
+      //   granted
+      //     ? 'granted'
+      //     : denied
+      //     ? 'denied'
+      //     : never_ask_again
+      //     ? 'ignored'
+      //     : 'half granted',
+      // );
       if (granted) {
         // return granted
       } else if (denied) {
-        // return denied
+        // return open app settings
       } else if (never_ask_again) {
-        // open app settings
+        // ignored
       } else {
-        // return ignored
+        // return
       }
     } catch (error) {
       console.log('PERMISSION ERROR:', error);

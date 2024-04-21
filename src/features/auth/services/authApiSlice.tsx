@@ -17,7 +17,7 @@ const authApiSlice = apiSlice.injectEndpoints({
           const {data} = await queryFulfilled;
           console.log('SUCCESS:', data);
         } catch (error) {
-          // console.log('ERROR:', error);
+          console.log('ERROR:', error);
         }
       },
     }),

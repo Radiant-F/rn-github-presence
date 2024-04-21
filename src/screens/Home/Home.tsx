@@ -4,18 +4,18 @@ import {HomeProps} from '../../routes/navigationConfig';
 import {useUserQuery} from '../../features/auth/services/authApiSlice';
 
 export default function Home({navigation}: HomeProps): React.JSX.Element {
-  const {isFetching} = useUserQuery(null);
+  // const {isFetching} = useUserQuery(null);
   return (
     <View>
       <Text>Home</Text>
-      <ActivityIndicator
+      {/* <ActivityIndicator
         animating={isFetching}
         size={'large'}
         color={'black'}
-      />
+      /> */}
       <Button
         title="navigate to somewhere"
-        onPress={() => navigation.navigate('SignIn')}
+        onPress={() => navigation.canGoBack()}
       />
     </View>
   );

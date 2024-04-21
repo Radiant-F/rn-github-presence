@@ -1,102 +1,58 @@
 import {
-  StyleSheet,
   Text,
   View,
   PermissionsAndroid,
-  ToastAndroid,
   Linking,
   Button,
-  StatusBar,
+  Alert,
+  BackHandler,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
+import usePermission from '../../hooks/usePermission';
+import {CameraView} from '../../features/rn-vision-camera';
 
 export default function RNVisionCam(): React.JSX.Element {
-  async function checkCameraPermission() {
-    try {
-      const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
+  const {result, request} = usePermission([
+    PermissionsAndroid.PERMISSIONS.CAMERA,
+    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+  ]);
+
+  function checkPermissions() {
+    if (result == 'unknown') return request();
+    if (result != 'granted') {
+      Alert.alert(
+        '',
+        'Camera and microphone permissions are needed. Open app settings to grant permissions?',
+        [
+          {text: 'open settings', onPress: () => Linking.openSettings()},
+          {text: 'no', onPress: () => BackHandler.exitApp()},
+        ],
       );
-      if (result == 'granted') {
-        // turn on camera
-      } else if (result == 'denied') {
-        // ask for permission
-      } else {
-        // open app settings
-      }
-    } catch (error) {
-      console.log('PERMISSION ERROR:', error);
+      return;
     }
   }
 
-  async function checkMicPermission() {
-    try {
-      const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      );
-      if (result == 'granted') {
-        // turn on camera
-      } else if (result == 'denied') {
-        // ask for permission
-      } else {
-        // open app settings
-      }
-    } catch (error) {
-      console.log('PERMISSION ERROR:', error);
-    }
-  }
+  useEffect(() => {
+    checkPermissions();
+  }, []);
 
-  async function checkPermission() {
-    try {
-      const permissions = [
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ];
-      const results = await PermissionsAndroid.requestMultiple(permissions),
-        granted =
-          results[permissions[0]] == 'granted' &&
-          results[permissions[1]] == 'granted',
-        denied =
-          results[permissions[0]] == 'denied' &&
-          results[permissions[1]] == 'denied';
-
-      if (granted) {
-        // turn on camera
-      } else if (denied) {
-        // turn on camera
-      } else {
-        ToastAndroid.show(
-          'Harap nyalakan perizinan kamera dan mikrofon',
-          ToastAndroid.LONG,
-        );
-        await Linking.openSettings();
-      }
-    } catch (error) {
-      console.log('PERMISSION ERROR:', error);
-    }
-  }
-
-  return (
+  if (result != 'granted') {
     <View
       style={{
         flex: 1,
-        justifyContent: 'center',
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#888888',
-        padding: 8,
+        padding: 20,
       }}>
       <Text>RNVisionCam</Text>
       <Button
-        title="toasted"
+        title="request permission"
         onPress={() => {
-          ToastAndroid.showWithGravity(
-            'Walawe',
-            ToastAndroid.LONG,
-            ToastAndroid.CENTER,
-          );
+          console.log('wadidaw');
         }}
       />
-    </View>
-  );
-}
+    </View>;
+  }
 
-const styles = StyleSheet.create({});
+  if (result == 'granted') return <CameraView />;
+  else return <></>;
+}
